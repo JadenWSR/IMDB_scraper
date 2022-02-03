@@ -18,7 +18,7 @@ class ImdbSpider(scrapy.Spider):
         """
         # navigate to the Cast & Crew page
         page = response.urljoin("fullcredits/?ref_=tt_ql_cl")
-        
+        # call parse_full_credits method
         yield scrapy.Request(url=page, callback=self.parse_full_credits)
 
 
@@ -30,8 +30,8 @@ class ImdbSpider(scrapy.Spider):
                 the actor’s page is reached.
         The parse_full_credits() method does not return any data. 
         """
-
-        for url in [a.attrib["href"] for a in response.css("td.primary_photo a")]:
+        # Redirect to each actor's page and call parse_actor_page method
+        for url in [a.attrib["href"] for a in response.css("td.primary_photo a")]: # a list of relative paths, one for each actor
             yield scrapy.Request(url =  response.urljoin(url), callback = self.parse_actor_page)
 
     def parse_actor_page(self, response):
@@ -44,6 +44,7 @@ class ImdbSpider(scrapy.Spider):
         actor = response.css(".header .itemprop::text").get()
         # get the list of movie or TV name
         movie_or_TV_name = response.css("b a::text").getall()
+        # yield one dictionary for each of the movies or TV shows
         for name in movie_or_TV_name:
             yield {
                 'actor': actor,
